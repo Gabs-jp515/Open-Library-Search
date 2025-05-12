@@ -3,8 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    return fwrite(ptr, size, nmemb, stream);
+}
+
 struct URLParams {
-    char author[256]
+    char author[256];
     char publisher[256];
     char publish_year[256];
     char title[256];
@@ -15,26 +19,26 @@ void build_url(char *url, struct URLParams *params) {
     strcpy(url, "https://openlibrary.org/search.json?");
 
     // Append to params: Auhor
-    if (&params.author != NULL) {
+    if (strlen(params->author) > 0 ) {
         strcat(url, "author=");
         strcat(url, params->author);
     }
     // Append to params: Publisher
-    if (&params.publisher != NULL) {
+    if (strlen(params->publisher) > 0) {
         strcat(url, "&publisher=");
         strcat(url, params->publisher);
     }
     // Append to params: Publish Year
-    if (&params.publish_year != NULL) {
+    if (strlen(params->publish_year) > 0) {
         strcat(url, "&publish_year=");
         strcat(url, params->publish_year);
     }
     // Append to params: Auhor
-    if (&params.title != NULL) {
+    if (strlen(params->title) > 0) {
         strcat(url, "&title=");
         strcat(url, params->title);
     }
-    
+} 
 
     
     
@@ -45,12 +49,16 @@ int main() {
     
     printf("Author: ");
     fgets(params.author, sizeof(params.author), stdin);
-    scanf("Publisher %s (Press Enter for no specifcation)\n", publisher);
+    params.author[strcspn(params.author, "\n")] = 0;
+    printf("Publisher: ");
     fgets(params.publisher, sizeof(params.publisher), stdin);
-    scanf("Published Year: %d (Press Enter for no specification)\n", publish_year);
+    params.publisher[strcspn(params.publisher, "\n")] = 0;
+    printf("Published Year:");
     fgets(params.publish_year, sizeof(params.publish_year), stdin);
-    scanf("Title: %s\n", title); 
+    params.publish_year[strcspn(params.publish_year, "\n")] = 0;
+    printf("Title: "); 
     fgets(params.title, sizeof(params.title), stdin);
+    params.title[strcspn(params.title, "\n")] = 0;
 
     build_url(url, &params);
 
@@ -64,7 +72,7 @@ int main() {
     curl = curl_easy_init();
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easysetopt(curl, CURLOPT_WRITEDATA, fp);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
     curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 
     result = curl_easy_perform(curl);

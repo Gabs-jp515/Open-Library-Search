@@ -3,17 +3,27 @@ CC = gcc
 CFLAGS = -Wall
 LDFLAGS = -lcjson -lcurl
 
-# Source files
-SRC = fetch_data.c json_parser.c
-OBJ = $(SRC:.c=.o)
-TARGET = book_search
+# Programs and their sources
+DOWNLOAD_SRC = download_data.c
+PARSER_SRC = json_parser.c
 
-# Default target
-$(TARGET): $(OBJ)
-	@echo ":: Linking ::"
-	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
+DOWNLOAD_OBJ = $(DOWNLOAD_SRC:.c=.o)
+PARSER_OBJ = $(PARSER_SRC:.c=.o)
 
-# Rule to compile each .c file into .o
+DOWNLOAD_EXE = fetch_data
+PARSER_EXE = parse_data
+
+# Build both targets
+all: $(DOWNLOAD_EXE) $(PARSER_EXE)
+
+$(DOWNLOAD_EXE): $(DOWNLOAD_OBJ)
+	@echo ":: Linking fetch_data ::"
+	$(CC) $(DOWNLOAD_OBJ) -o $(DOWNLOAD_EXE) $(LDFLAGS)
+
+$(PARSER_EXE): $(PARSER_OBJ)
+	@echo ":: Linking parse_data ::"
+	$(CC) $(PARSER_OBJ) -o $(PARSER_EXE) $(LDFLAGS)
+
 %.o: %.c
 	@echo ":: Compiling $< ::"
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -21,5 +31,5 @@ $(TARGET): $(OBJ)
 .PHONY: clean
 clean:
 	@echo ":: Cleaning ::"
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(DOWNLOAD_OBJ) $(PARSER_OBJ) $(DOWNLOAD_EXE) $(PARSER_EXE)
 
